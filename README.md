@@ -4,4 +4,4 @@ To run this project, you need to install some packages: astral, datetime, math, 
 
 Plesase do this in CMD line:
 
-pip install astral, datetime, math, matplotlib, numpy -y
+pip install astral, matplotlib, numpy -y
