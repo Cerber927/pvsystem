@@ -5,19 +5,39 @@ from math import ceil, floor
 
 
 def get_location(lon, lat):
+    """
+
+    :param lon:
+    :param lat:
+    :return: location
+    """
     location = LocationInfo(latitude=lat, longitude=lon)
     return location
 
 
 def get_sunshine_time(location, date):
+    """
+
+    :param location:
+    :param date:
+    :return: s is a dictionary. Here we get the sunrise time and sunset time.
+    """
     s = sun(location.observer, date=date)
     return s
 
 
-# time_availability should be a list with a length of 24. That is 24 hours.
-# if time_availability = 0, the load is not working, power = base_power
-# if time_availability = 1, the load is working, power = working_power
 class Load:
+    """
+    This class describes a load in electrical system. It has 4 attributes.
+
+    time_availability: a list with a length of 24, representing working state in 24 hours.
+        0: load not working, power = base_power
+        1: load working, power = working_power
+    base_power: float. When load not works, the consumption of the load
+    working_power: float. When load works, the consumption of the load
+    power: float. The real consumption of the load regardless of working or not
+
+    """
     def __init__(self, time_availability, base_power, working_power):
         self.time_availability = time_availability
         self.base_power = base_power
@@ -25,13 +45,25 @@ class Load:
         self.power = 0
 
 
-# The Source get longitude and latitude, calculate the sunrise and sunset time in a certain given date
-# Input variable loads is a list containing loads
-# consumption_power is a list with a length of 24. It shows all the power the loads consuming in every hour
-# source_power is a list with a length of 24. It shows all the power the solar panel producing in every hour
-# injection_power is a list with a length of 24. It shows every hour how much power the system get from other grid
-# supply_power is a list with a length of 24. It shows every hour how much extra power the system provides to other grid
 class Source:
+    """
+    This class describes a solar panel in electrical system. It has 12 attributes.
+
+    lon: float. longitude
+    lat: float. latitude
+    data_str: string, with format of "YYYY-MM-DD", for example "2024-01-01"
+    loads: a list, containing all the loads connecting the source
+    irradiance_def: float. 1000 means 1000W/m^2
+    area: float. The area of the solar panel. 10 means 10m^2
+    efficiency: float. The ratio of how much solar power can be transferred into electrical power
+    consumption_power: a list with a length of 24, representing the power consumed by loads in 24 hours.
+    source_power: a list with a length of 24, representing the power produced by source in 24 hours.
+    date: date
+    injection_power: a list with a length of 24. If produced power is higher than the consumed power,
+        the extra power will be transferred into other grid.
+    supply_power: a list with a length of 24. If produced power is lower than the consumed power,
+        the power from other grid will be transferred into this grid.
+    """
     def __init__(self, lon, lat, date_str, loads):
         self.consumption_power = []
         self.lon = lon
@@ -43,13 +75,14 @@ class Source:
         self.efficiency = 0.1
         self.source_power = []
         self.date = datetime.strptime(date_str, "%Y-%m-%d")
-        self.loads_num = len(loads)
         self.injection_power = [0] * 24
         self.supply_power = [0] * 24
 
-    # The function gets the power consumed by all loads in every hour
-    # The result is a list stored in consumption_power
     def load_power(self):
+        """
+        This function gets the power consumed by all loads in every hour
+        The result is a list stored in consumption_power
+        """
         for j in range(24):
             temp_power = 0
             for _load in list(self.loads):
@@ -65,6 +98,10 @@ class Source:
     # The function gets the power produced by the source in every hour
     # The result is a list stored in source_power
     def generation_power(self):
+        """
+        This function gets the power produced by the source in every hour.
+        The result is a list stored in source_power.
+        """
         location = get_location(self.lon, self.lat)
         s = get_sunshine_time(location, self.date)
         for j in range(24):
@@ -81,10 +118,13 @@ class Source:
     def get_source_power(self):
         return self.source_power
 
-    # The function calculates how much extra power the system need or how much extra the system provide in every hour
-    # injection_power is a list with a length of 24, showing the power the system needs in every hour
-    # supply_power is a list with a length of 24, showing the power the system provides in every hour
     def power_flow(self):
+        """
+        This function calculates how much extra power the system need
+            or how much extra the system provide in every hour
+        injection_power is a list with a length of 24, representing the power the system needs in every hour
+        supply_power is a list with a length of 24, representing the power the system provides in every hour
+        """
         for j in range(24):
             if self.source_power[j] <= self.consumption_power[j]:
                 self.injection_power[j] = self.consumption_power[j] - self.source_power[j]
