@@ -64,14 +64,14 @@ class Source:
     supply_power: a list with a length of 24. If produced power is lower than the consumed power,
         the power from other grid will be transferred into this grid.
     """
-    def __init__(self, lon, lat, date_str, loads):
+    def __init__(self, lon, lat, date_str, area, loads):
         self.consumption_power = []
         self.lon = lon
         self.lat = lat
         self.date_str = date_str
         self.loads = loads
         self.irradiance_def = 1000
-        self.area = 10
+        self.area = area
         self.efficiency = 0.1
         self.source_power = []
         self.date = datetime.strptime(date_str, "%Y-%m-%d")

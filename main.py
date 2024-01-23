@@ -11,7 +11,7 @@ motor2 = Load(motor2_time, 150, 450)
 motor3 = Load(motor3_time, 200, 600)
 load_list = [motor1, motor2, motor3]
 
-battery = Source(6.953101, 50.935173, "2024-01-01", load_list)
+battery = Source(6.953101, 50.935173, "2024-01-01", 10, load_list)
 print(battery.date)
 
 battery.load_power()
